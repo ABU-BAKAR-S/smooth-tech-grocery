@@ -10,7 +10,7 @@ import productRouter from "./routes/product.route.js";
 import cartRouter from "./routes/cart.route.js";
 import addressRouter from "./routes/address.route.js";
 import orderRouter from "./routes/order.route.js";
-// import { stripeWebhooks } from "./controllers/order.controller.js";
+import { stripeWebhooks } from "./controllers/order.controller.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -24,7 +24,7 @@ const allowedOrigins = [
   "https://smooth-tech-grocery.vercel.app",
 ];
 
-// app.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
+app.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
 
 app.use(express.json());
 app.use(cookieParser());
