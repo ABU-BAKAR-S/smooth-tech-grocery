@@ -107,6 +107,7 @@ export const placeOderStripe = async (req, res) => {
 
 //  Stripe webhooks to verify payment actions: /stripe
 export const stripeWebhooks = async (request, response) => {
+  console.log("Webhook route hit");
   // Stripe gateway initialize
   const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
   const sig = request.headers["stripe-signature"];
@@ -118,11 +119,12 @@ export const stripeWebhooks = async (request, response) => {
       process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (error) {
-    response.status(400).send(`Webhook Error: ${error.message}`);
+    return response.status(400).send(`Webhook Error: ${error.message}`);
   }
 
+  console.log("Webhook event:", event.type);
   // handle the event
-  /*
+
   switch (event.type) {
     case "payment_intent.succeeded": {
       const paymentIntent = event.data.object;
@@ -161,36 +163,6 @@ export const stripeWebhooks = async (request, response) => {
       break;
   }
 
-  */
-  switch (event.type) {
-    case "checkout.session.completed": {
-      const session = event.data.object;
-
-      const { orderId, userId } = session.metadata;
-
-      await Order.findByIdAndUpdate(orderId, {
-        isPaid: true,
-      });
-
-      await User.findByIdAndUpdate(userId, {
-        cartItems: {},
-      });
-
-      break;
-    }
-
-    case "checkout.session.expired": {
-      const session = event.data.object;
-      const { orderId } = session.metadata;
-
-      await Order.findByIdAndDelete(orderId);
-
-      break;
-    }
-
-    default:
-      console.log("Unhandled event:", event.type);
-  }
   response.json({ received: true });
 };
 
